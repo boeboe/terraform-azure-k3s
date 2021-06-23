@@ -1,0 +1,4 @@
+# output artifacts
+*.tf
+*.tfstate
+*.yaml
