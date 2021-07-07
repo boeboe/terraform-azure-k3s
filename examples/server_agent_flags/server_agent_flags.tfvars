@@ -55,4 +55,4 @@ k3s_cluster_cidr      = "10.12.0.0/16"
 k3s_service_cidr      = "10.13.0.0/16"
 k3s_cluster_dns       = "10.13.0.10"
 
-k3s_kubeconfig_output = "./output/server_agent/kubeconfig.yaml"
+k3s_kubeconfig_output = "./output/server_agent_flags/kubeconfig.yaml"
