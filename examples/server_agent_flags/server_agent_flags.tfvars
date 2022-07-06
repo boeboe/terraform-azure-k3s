@@ -2,16 +2,16 @@
 # Azure Infrastructure
 ######################
 
-az_resource_group = "TestK3sRG-ServerAgentFlags"
+az_resource_group = "TF-K3sRG-ServerAgentFlags"
 az_location       = "westeurope"
 
 az_tags = {
   Terraform   = "true"
-  Environment = "MyTerraformTest"
-  Owner       = "Bart Van Bos"
+  Environment = "MyTerraformK3s-HA"
+  Owner       = "Vivek S"
 }
 
-az_k3s_mysql_server_name    = "test-k3s-mysql-saf"
+az_k3s_mysql_server_name    = "tf-k3s-mysql-saf"
 az_k3s_mysql_admin_username = "myadmin"
 az_k3s_mysql_admin_password = "Password123!"
 
@@ -23,7 +23,7 @@ az_allow_public_ip = "81.82.50.95"
 
 k3s_server_groups = {
   Server = {
-    k3s_server_names        = ["Master1"]
+    k3s_server_names        = ["Master1", "Master2"]
     k3s_server_vm_size      = "Standard_DS1_v2"
     k3s_server_admin_user   = "ubuntu"
     k3s_server_disk_size_gb = 30
@@ -35,7 +35,7 @@ k3s_server_groups = {
 
 k3s_agent_groups = {
   Agent = {
-    k3s_agent_names        = ["Worker1"]
+    k3s_agent_names        = ["Worker1", "Worker2"]
     k3s_agent_vm_size      = "Standard_DS1_v2"
     k3s_agent_admin_user   = "ubuntu"
     k3s_agent_disk_size_gb = 30
