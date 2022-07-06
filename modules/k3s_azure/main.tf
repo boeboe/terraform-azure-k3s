@@ -41,7 +41,7 @@ resource "azurerm_resource_group" "az_k3s_resource_group" {
 }
 
 resource "azurerm_virtual_network" "az_k3s_vnet" {
-  name                = "RancherK3sVnet"
+  name                = "TFK3sVnet"
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   location            = azurerm_resource_group.az_k3s_resource_group.location
   address_space       = ["10.0.0.0/16"]
@@ -55,7 +55,7 @@ resource "azurerm_public_ip" "az_k3s_public_ip" {
     for k3s_agent in local.k3s_agent_groups_flatten : "${k3s_agent.k3s_instance_group_name}.${k3s_agent.k3s_instance_name}" => k3s_agent
   })
 
-  name                = format("RancherK3sPublicIp-%s", each.key)
+  name                = format("TFK3sPublicIp-%s", each.key)
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   location            = azurerm_resource_group.az_k3s_resource_group.location
   allocation_method   = "Static"
@@ -68,23 +68,23 @@ resource "azurerm_public_ip" "az_k3s_public_ip" {
 }
 
 resource "azurerm_public_ip" "az_k3s_public_ip_lb" {
-  name                = "RancherK3sPublicIp-LoadBalancer"
+  name                = "TFK3sPublicIp-LoadBalancer"
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   location            = azurerm_resource_group.az_k3s_resource_group.location
   allocation_method   = "Static"
   sku                 = "Standard"
   tags                = var.az_tags
-  domain_name_label   = "azure-k3s-lb"
+  domain_name_label   = "tf-az-k3s-lb"
 }
 
 resource "azurerm_network_security_group" "az_k3s_nsg" {
-  name                = "RancherK3sNsg"
+  name                = "TFK3sNsg"
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   location            = azurerm_resource_group.az_k3s_resource_group.location
   tags                = var.az_tags
 
   security_rule {
-    name                       = "RancherK3sNsgRuleSsh"
+    name                       = "TFK3sNsgRuleSsh"
     description                = "Allow SSH Access to all VMS."
     priority                   = 100
     direction                  = "Inbound"
@@ -97,7 +97,7 @@ resource "azurerm_network_security_group" "az_k3s_nsg" {
   }
 
   security_rule {
-    name                       = "RancherK3sNsgHttp80Rule"
+    name                       = "TFK3sNsgHttp80Rule"
     description                = "Allow HTTP/80 to all VMS."
     priority                   = 200
     direction                  = "Inbound"
@@ -110,7 +110,7 @@ resource "azurerm_network_security_group" "az_k3s_nsg" {
   }
 
   security_rule {
-    name                       = "RancherK3sNsgHttps443Rule"
+    name                       = "TFK3sNsgHttps443Rule"
     description                = "Allow HTTPS/443 to all VMS."
     priority                   = 201
     direction                  = "Inbound"
@@ -123,7 +123,7 @@ resource "azurerm_network_security_group" "az_k3s_nsg" {
   }
 
   security_rule {
-    name                       = "RancherK3sNsgHttps6443Rule"
+    name                       = "TFK3sNsgHttps6443Rule"
     description                = "Allow HTTPS/6443 to all VMS."
     priority                   = 202
     direction                  = "Inbound"
@@ -137,14 +137,14 @@ resource "azurerm_network_security_group" "az_k3s_nsg" {
 }
 
 resource "azurerm_lb" "az_k3s_lb" {
-  name                = "RancherK3sLoadBalancer"
+  name                = "TFK3sLoadBalancer"
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   location            = azurerm_resource_group.az_k3s_resource_group.location
   sku                 = "Standard"
   tags                = var.az_tags
 
   frontend_ip_configuration {
-    name                 = "RancherK3sFrontEndLbIp"
+    name                 = "TFK3sFrontEndLbIp"
     public_ip_address_id = azurerm_public_ip.az_k3s_public_ip_lb.id
   }
 
@@ -157,7 +157,7 @@ resource "azurerm_lb" "az_k3s_lb" {
 
 resource "azurerm_lb_backend_address_pool" "az_k3s_lb_backend_pool_api" {
   loadbalancer_id = azurerm_lb.az_k3s_lb.id
-  name            = "RancherK3sBackEndPoolApi"
+  name            = "TFK3sBackEndPoolApi"
 
   lifecycle {
     ignore_changes = [
@@ -169,7 +169,7 @@ resource "azurerm_lb_backend_address_pool" "az_k3s_lb_backend_pool_api" {
 
 resource "azurerm_lb_backend_address_pool" "az_k3s_lb_backend_pool_traffic" {
   loadbalancer_id = azurerm_lb.az_k3s_lb.id
-  name            = "RancherK3sBackEndPoolTraffic"
+  name            = "TFK3sBackEndPoolTraffic"
 
   lifecycle {
     ignore_changes = [
@@ -182,32 +182,32 @@ resource "azurerm_lb_backend_address_pool" "az_k3s_lb_backend_pool_traffic" {
 resource "azurerm_lb_probe" "az_k3s_lb_probe_80" {
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   loadbalancer_id     = azurerm_lb.az_k3s_lb.id
-  name                = "RancherK3sLbProbe80"
+  name                = "TFK3sLbProbe80"
   port                = 80
 }
 
 resource "azurerm_lb_probe" "az_k3s_lb_probe_443" {
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   loadbalancer_id     = azurerm_lb.az_k3s_lb.id
-  name                = "RancherK3sLbProbe443"
+  name                = "TFK3sLbProbe443"
   port                = 443
 }
 
 resource "azurerm_lb_probe" "az_k3s_lb_probe_6443" {
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   loadbalancer_id     = azurerm_lb.az_k3s_lb.id
-  name                = "RancherK3sLbProbe6443"
+  name                = "TFK3sLbProbe6443"
   port                = 6443
 }
 
 resource "azurerm_lb_rule" "az_k3s_lb_rule_http80" {
   resource_group_name            = azurerm_resource_group.az_k3s_resource_group.name
   loadbalancer_id                = azurerm_lb.az_k3s_lb.id
-  name                           = "RancherK3sLbHttp80Rule"
+  name                           = "TFK3sLbHttp80Rule"
   protocol                       = "Tcp"
   frontend_port                  = 80
   backend_port                   = 80
-  frontend_ip_configuration_name = "RancherK3sFrontEndLbIp"
+  frontend_ip_configuration_name = "TFK3sFrontEndLbIp"
   backend_address_pool_id        = azurerm_lb_backend_address_pool.az_k3s_lb_backend_pool_traffic.id
   probe_id                       = azurerm_lb_probe.az_k3s_lb_probe_80.id
 }
@@ -215,11 +215,11 @@ resource "azurerm_lb_rule" "az_k3s_lb_rule_http80" {
 resource "azurerm_lb_rule" "az_k3s_lb_rule_https443" {
   resource_group_name            = azurerm_resource_group.az_k3s_resource_group.name
   loadbalancer_id                = azurerm_lb.az_k3s_lb.id
-  name                           = "RancherK3sLbHttps443Rule"
+  name                           = "TFK3sLbHttps443Rule"
   protocol                       = "Tcp"
   frontend_port                  = 443
   backend_port                   = 443
-  frontend_ip_configuration_name = "RancherK3sFrontEndLbIp"
+  frontend_ip_configuration_name = "TFK3sFrontEndLbIp"
   backend_address_pool_id        = azurerm_lb_backend_address_pool.az_k3s_lb_backend_pool_traffic.id
   probe_id                       = azurerm_lb_probe.az_k3s_lb_probe_443.id
 }
@@ -227,11 +227,11 @@ resource "azurerm_lb_rule" "az_k3s_lb_rule_https443" {
 resource "azurerm_lb_rule" "az_k3s_lb_rule_https6443" {
   resource_group_name            = azurerm_resource_group.az_k3s_resource_group.name
   loadbalancer_id                = azurerm_lb.az_k3s_lb.id
-  name                           = "RancherK3sLbHttps6443Rule"
+  name                           = "TFK3sLbHttps6443Rule"
   protocol                       = "Tcp"
   frontend_port                  = 6443
   backend_port                   = 6443
-  frontend_ip_configuration_name = "RancherK3sFrontEndLbIp"
+  frontend_ip_configuration_name = "TFK3sFrontEndLbIp"
   backend_address_pool_id        = azurerm_lb_backend_address_pool.az_k3s_lb_backend_pool_api.id
   probe_id                       = azurerm_lb_probe.az_k3s_lb_probe_6443.id
 }
@@ -281,7 +281,7 @@ resource "azurerm_mysql_firewall_rule" "az_k3s_mysql_fw_rule_my_ip" {
 }
 
 resource "azurerm_subnet" "az_k3s_subnet" {
-  name                 = "RancherK3sSubnet"
+  name                 = "TFK3sSubnet"
   resource_group_name  = azurerm_resource_group.az_k3s_resource_group.name
   virtual_network_name = azurerm_virtual_network.az_k3s_vnet.name
   address_prefixes     = ["10.0.0.0/24"]
@@ -289,7 +289,7 @@ resource "azurerm_subnet" "az_k3s_subnet" {
 }
 
 resource "azurerm_mysql_virtual_network_rule" "az_k3s_mysql_vnet_rule" {
-  name                = "RancherK3sVNetRule"
+  name                = "TFK3sVNetRule"
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   server_name         = azurerm_mysql_server.az_k3s_mysql_server.name
   subnet_id           = azurerm_subnet.az_k3s_subnet.id
@@ -302,7 +302,7 @@ resource "azurerm_network_interface" "az_k3s_nics" {
     for k3s_agent in local.k3s_agent_groups_flatten : "${k3s_agent.k3s_instance_group_name}.${k3s_agent.k3s_instance_name}" => k3s_agent
   })
 
-  name                = format("RancherK3sNic-%s", each.key)
+  name                = format("TFK3sNic-%s", each.key)
   resource_group_name = azurerm_resource_group.az_k3s_resource_group.name
   location            = azurerm_resource_group.az_k3s_resource_group.location
 

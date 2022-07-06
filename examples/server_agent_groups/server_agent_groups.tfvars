@@ -7,8 +7,8 @@ az_location       = "westeurope"
 
 az_tags = {
   Terraform   = "true"
-  Environment = "MyTerraformTest"
-  Owner       = "Bart Van Bos"
+  Environment = "TerraformK3s-HA"
+  Owner       = "Vivek S"
 }
 
 az_k3s_mysql_server_name    = "test-k3s-mysql-sag"

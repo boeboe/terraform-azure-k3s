@@ -208,3 +208,7 @@ resource "null_resource" "kubeconfig" {
     azurerm_linux_virtual_machine.az_k3s_server_vms
   ]
 }
+
+# Steps
+# export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+# helm upgrade --install cert-manager jetstack/cert-manager   --namespace cert-manager   --create-namespace   --version v1.5.1
