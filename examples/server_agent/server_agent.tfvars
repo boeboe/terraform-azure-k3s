@@ -2,16 +2,16 @@
 # Azure Infrastructure
 ######################
 
-az_resource_group = "TestK3sRG-ServerAgent"
+az_resource_group = "TfK3sRG-ServerAgent"
 az_location       = "westeurope"
 
 az_tags = {
   Terraform   = "true"
-  Environment = "MyTerraformTest"
-  Owner       = "Bart Van Bos"
+  Environment = "TerraformK3s-HA"
+  Owner       = "Vivek S"
 }
 
-az_k3s_mysql_server_name    = "test-k3s-mysql-sa"
+az_k3s_mysql_server_name    = "tf-k3s-mysql-sa"
 az_k3s_mysql_admin_username = "myadmin"
 az_k3s_mysql_admin_password = "Password123!"
 

@@ -8,3 +8,4 @@
 
 # .hcl files
 **/*.hcl
+.vscode
